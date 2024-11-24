@@ -9,6 +9,63 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          String    @default("user")
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions Session[]
+  userSoal UserSoal[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Soal {
+  id         String   @id @default(uuid())
+  soal       String   @unique
+  url        String   @unique
+  flag       String   @unique
+  category   String?
+  isFavorite Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  userSoal UserSoal[]
+
+  @@map("soals")
+}
+
+model UserSoal {
+  id      String   @id @default(uuid())
+  userId  String
+  soalId  String
+  takenAt DateTime @default(now()) @db.Date
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  soal Soal @relation(fields: [soalId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, soalId])
+  @@map("user_soals")
 }

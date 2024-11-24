@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Users
+
+Disallow: /admin/
+Disallow: /user/
+
+# Auth
+
+Disallow: /login/
+Disallow: /register/
+
+Disallow: /private/
+
+Disallow: /*?sort=
+
+Sitemap: https://cyberquest.web.id/sitemap.xml
