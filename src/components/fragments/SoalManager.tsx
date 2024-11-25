@@ -321,7 +321,7 @@ const SoalManager = () => {
 
       async submitFlag(soalId: string, flag: string) {
         try {
-          const response = await fetch("/api/submit-flag", {
+          const response = await fetch("/api/soals/submit-flag", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ soalId, flag }),
