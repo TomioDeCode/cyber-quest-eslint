@@ -4,12 +4,7 @@ import { AppSidebar } from "@/components/core/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-const DashboardLayout = ({ children, className }: DashboardLayoutProps) => {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard>
       <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -18,8 +13,7 @@ const DashboardLayout = ({ children, className }: DashboardLayoutProps) => {
         <main
           className={cn(
             "relative flex flex-1 flex-col",
-            "overflow-hidden bg-background",
-            className
+            "overflow-hidden bg-background"
           )}
         >
           <div className="sticky top-0 z-10 flex h-14 items-center border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:hidden">
@@ -34,6 +28,4 @@ const DashboardLayout = ({ children, className }: DashboardLayoutProps) => {
       </div>
     </AuthGuard>
   );
-};
-
-export default DashboardLayout;
+}

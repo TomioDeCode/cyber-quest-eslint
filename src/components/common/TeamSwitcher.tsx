@@ -8,7 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -74,7 +73,7 @@ export function TeamSwitcher({
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Home
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {teams.map((team) => (
               <DropdownMenuItem
                 key={team.name}
                 onClick={() => setActiveTeam(team)}
