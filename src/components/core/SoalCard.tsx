@@ -74,10 +74,11 @@ export const SoalCard = ({
     try {
       onDelete(id);
       await refetchData();
+      onCancel();
     } catch (error) {
       console.error("Error saving:", error);
     } finally {
-      setIsSaving(false);
+      setIsDelete(false);
     }
   };
 
@@ -158,29 +159,31 @@ export const SoalCard = ({
           <div className="flex justify-between items-center pt-2">
             {isAdmin ? (
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onEdit(soal)}
-                  className="gap-2 hover:bg-primary hover:text-primary-foreground"
-                >
-                  <Pencil className="h-4 w-4" />
-                  <span className="hidden md:inline">Edit URL</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isDelete}
-                  onClick={() => handleDelete(soal.id)}
-                  className="gap-2 hover:bg-destructive hover:text-destructive-foreground"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  {isDelete ? (
-                    <span className="hidden md:inline">Delete...</span>
-                  ) : (
-                    <span className="hidden md:inline">Delete</span>
-                  )}
-                </Button>
+                <div className="space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEdit(soal)}
+                    className="gap-2 hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    <span className="hidden md:inline">Edit URL</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isDelete}
+                    onClick={() => handleDelete(soal.id)}
+                    className="gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {isDelete ? (
+                      <span className="hidden md:inline">Delete...</span>
+                    ) : (
+                      <span className="hidden md:inline">Delete</span>
+                    )}
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="flex-1" />

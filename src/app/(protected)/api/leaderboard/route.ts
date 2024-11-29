@@ -25,11 +25,6 @@ export async function GET(req: NextRequest) {
           _count: "desc",
         },
       },
-      where: {
-        NOT: {
-          role: "admin",
-        },
-      },
       skip,
       take: limit,
     });

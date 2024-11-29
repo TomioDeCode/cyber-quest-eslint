@@ -100,7 +100,7 @@ const LeaderboardPage = () => {
       case 3:
         return "bg-amber-600";
       default:
-        return "bg-blue-600";
+        return "bg-transparent";
     }
   };
 
@@ -170,7 +170,7 @@ const LeaderboardPage = () => {
                       <TableRow key={user.id} className="mt-2">
                         <TableCell>
                           <Badge
-                            className={`${getRankBadgeColor(
+                            className={`hover:bg-transparent ${getRankBadgeColor(
                               user.rank
                             )} text-white`}
                           >

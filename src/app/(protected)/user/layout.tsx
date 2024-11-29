@@ -1,14 +1,20 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { AuthGuard } from "@/components/core/AuthGuard";
 import { AppSidebar } from "@/components/core/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { AppSidebarSkeleton } from "@/components/common/AppSidebarSkeleton";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  function SidebarContent() {
+    return <AppSidebar />;
+  }
   return (
     <AuthGuard>
       <div className="flex h-screen w-full overflow-hidden bg-background">
-        <AppSidebar className="hidden border-r border-border bg-card md:block" />
+        <Suspense fallback={<AppSidebarSkeleton />}>
+          <SidebarContent />
+        </Suspense>
 
         <main
           className={cn(

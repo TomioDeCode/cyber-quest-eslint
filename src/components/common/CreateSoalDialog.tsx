@@ -43,7 +43,7 @@ export const CreateSoalDialog = ({ onSoalCreated }: CreateSoalDialogProps) => {
     "cryptography",
     "forensics",
     "reverse",
-    "network",
+    "general",
     "web",
   ];
 

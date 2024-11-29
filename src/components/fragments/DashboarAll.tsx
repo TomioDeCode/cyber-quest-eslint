@@ -9,8 +9,9 @@ type Soal = {
 };
 
 import React, { useState, useEffect } from "react";
-import { Trophy, Target, BookOpen, ArrowRight, Loader2 } from "lucide-react";
+import { Trophy, Target, BookOpen, ArrowRight } from "lucide-react";
 import { useSession } from "next-auth/react";
+import DashboardLoading from "../common/DashboardLoading";
 
 const Dashboard = () => {
   const [soalList, setSoalList] = useState<Soal[]>([]);
@@ -54,7 +55,7 @@ const Dashboard = () => {
   }, []);
 
   if (loading) {
-    return <LoadingState />;
+    return <DashboardLoading />;
   }
 
   if (error) {
@@ -87,12 +88,6 @@ const Dashboard = () => {
     </div>
   );
 };
-
-const LoadingState = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-  </div>
-);
 
 const ErrorState = ({ error }: { error: string }) => (
   <div className="flex items-center justify-center min-h-screen">

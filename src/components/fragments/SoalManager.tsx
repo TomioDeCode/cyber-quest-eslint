@@ -53,7 +53,7 @@ const SoalManager = () => {
     "cryptography",
     "forensics",
     "reverse",
-    "network",
+    "general",
     "web",
   ];
 
