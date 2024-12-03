@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from "next/server";
-import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
@@ -59,7 +58,7 @@ export async function POST(request: NextRequest) {
     const newSoal = await prisma.soal.create({
       data: {
         soal: soal.trim(),
-        url: url.trim(),
+        url: url,
         flag: flag.trim(),
         category: category,
       },
@@ -82,22 +81,6 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error in POST /api/soal:", error);
-
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        const target = (error.meta?.target as string[]) || [];
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Duplicate entry",
-            error: `${target.join(", ")} already exist`,
-          },
-          { status: 400 }
-        );
-      }
-    }
-
     return NextResponse.json(
       {
         success: false,
