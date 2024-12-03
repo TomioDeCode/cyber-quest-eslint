@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     const existingEntry = await prisma.soal.findFirst({
       where: {
-        OR: [{ soal: soal.trim() }, { url: url.trim() }, { flag: flag.trim() }],
+        OR: [{ soal: soal.trim() }, { flag: flag.trim() }],
       },
     });
 
