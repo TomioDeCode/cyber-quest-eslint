@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       },
       take: 4,
       orderBy: {
-        createdAt: "desc",
+        createdAt: "asc",
       },
     });
 
