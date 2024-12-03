@@ -45,7 +45,7 @@ model Session {
 model Soal {
   id         String   @id @default(uuid())
   soal       String   @unique
-  url        String   @unique
+  url        String
   flag       String   @unique
   category   String?
   isFavorite Boolean  @default(false)

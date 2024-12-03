@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
     if (existingEntry) {
       const duplicateFields = [];
       if (existingEntry.soal === soal.trim()) duplicateFields.push("soal");
-      if (existingEntry.url === url.trim()) duplicateFields.push("url");
       if (existingEntry.flag === flag.trim()) duplicateFields.push("flag");
 
       return NextResponse.json(
