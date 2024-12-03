@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      take: 4,
+      take: 3,
       orderBy: {
         createdAt: "asc",
       },
