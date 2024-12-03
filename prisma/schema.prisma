@@ -62,6 +62,7 @@ model UserSoal {
   userId  String
   soalId  String
   takenAt DateTime @default(now()) @db.Date
+  isSolved  Boolean  @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   soal Soal @relation(fields: [soalId], references: [id], onDelete: Cascade)

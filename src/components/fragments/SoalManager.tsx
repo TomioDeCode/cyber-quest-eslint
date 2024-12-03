@@ -174,9 +174,14 @@ const SoalManager = () => {
     () => ({
       async fetchSoals() {
         try {
-          const response = await fetch("/api/soals");
+          // Add query parameters for search and unsolved soals
+          const params = new URLSearchParams();
+          params.append("excludeSolved", "true");
+
+          const response = await fetch(`/api/soals?${params.toString()}`);
           const data: ApiResponse<Soal[]> = await response.json();
 
+          // Rest of the method remains the same
           if (data.success && data.data) {
             const soalsWithFavorites = data.data.map((soal) => ({
               ...soal,

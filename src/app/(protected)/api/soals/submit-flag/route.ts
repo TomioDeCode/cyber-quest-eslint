@@ -70,6 +70,7 @@ export async function POST(req: Request) {
       data: {
         userId: user.id,
         soalId: soalId,
+        isSolved: true,
         takenAt: new Date().toISOString(),
       },
     });

@@ -11,6 +11,7 @@ export async function GET(request: Request) {
         .get("categories")
         ?.split(",")
         .map((c) => c.trim()) || [];
+    const excludeSolved = searchParams.get("excludeSolved") === "true";
 
     const soals = await prisma.soal.findMany({
       where: {
@@ -44,6 +45,18 @@ export async function GET(request: Request) {
             }
           : {}),
         ...(categories.length > 0 ? { category: { in: categories } } : {}),
+        
+        // Improved condition to filter out solved soals
+        ...(excludeSolved
+          ? {
+              userSoal: {
+                // Ensure there are NO solved entries for this soal
+                none: {
+                  isSolved: true
+                }
+              }
+            }
+          : {}),
       },
       select: {
         id: true,
@@ -56,6 +69,7 @@ export async function GET(request: Request) {
           select: {
             id: true,
             takenAt: true,
+            isSolved: true,
             user: {
               select: {
                 id: true,
