@@ -1,132 +1,116 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth"; // Sesuaikan path ke konfigurasi auth Anda
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const searchQuery = searchParams.get("search")?.trim() || "";
-    const categories =
-      searchParams
-        .get("categories")
-        ?.split(",")
-        .map((c) => c.trim()) || [];
-    const excludeSolved = searchParams.get("excludeSolved") === "true";
+    // Dapatkan sesi pengguna saat ini
+    const session = await getServerSession(authOptions);
+    
+    if (!session) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: "Unauthorized" 
+        }, 
+        { status: 401 }
+      );
+    }
+
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+
+    // Konversi searchParams ke objek
+    const params: Record<string, string> = {};
+    searchParams.forEach((value, key) => {
+      params[key] = value;
+    });
+
+    const searchQuery = params.search?.trim() || "";
+    const categories = params.categories
+      ? params.categories.split(",").map((c) => c.trim())
+      : [];
+    const excludeSolved = params.excludeSolved === "true";
 
     const soals = await prisma.soal.findMany({
       where: {
-        ...(searchQuery
-          ? {
-              OR: [
-                { soal: { contains: searchQuery, mode: "insensitive" } },
-                {
-                  userSoal: {
-                    some: {
-                      user: {
-                        OR: [
-                          {
-                            name: {
-                              contains: searchQuery,
-                              mode: "insensitive",
-                            },
-                          },
-                          {
-                            email: {
-                              contains: searchQuery,
-                              mode: "insensitive",
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  },
-                },
-              ],
-            }
-          : {}),
-        ...(categories.length > 0 ? { category: { in: categories } } : {}),
-        
-        // Improved condition to filter out solved soals
+        // Filter untuk soal yang belum diselesaikan oleh pengguna saat ini
         ...(excludeSolved
           ? {
               userSoal: {
-                // Ensure there are NO solved entries for this soal
                 none: {
+                  userId: session.user.id,
                   isSolved: true
                 }
               }
             }
           : {}),
+        
+        // Filter berdasarkan kategori jika ada
+        ...(categories.length > 0 
+          ? { category: { in: categories } } 
+          : {}),
+        
+        // Filter berdasarkan query pencarian jika ada
+        ...(searchQuery
+          ? {
+              OR: [
+                { soal: { contains: searchQuery, mode: "insensitive" } },
+              ],
+            }
+          : {}),
       },
-      select: {
-        id: true,
-        soal: true,
-        url: true,
-        category: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         userSoal: {
+          where: {
+            userId: session.user.id
+          },
           select: {
             id: true,
-            takenAt: true,
             isSolved: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
-          },
+            takenAt: true
+          }
         },
         _count: {
           select: {
-            userSoal: true,
-          },
-        },
+            userSoal: true
+          }
+        }
       },
       orderBy: {
-        createdAt: "asc",
+        createdAt: "desc",
       },
     });
 
-    if (!soals || soals.length === 0) {
+    // Transform soals untuk menambahkan informasi tambahan
+    const transformedSoals = soals.map(soal => ({
+      ...soal,
+      attemptCount: soal._count.userSoal,
+      userAttempt: soal.userSoal.length > 0 ? soal.userSoal[0] : null,
+      // Hapus field yang tidak diperlukan
+      userSoal: undefined,
+      _count: undefined
+    }));
+
+    // Jika tidak ada soal ditemukan
+    if (transformedSoals.length === 0) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            searchQuery || categories.length > 0
-              ? `No soals found matching search "${searchQuery}" and categories ${categories.join(
-                  ", "
-                )}`
-              : "No soals found",
+          message: "Tidak ada soal yang tersedia",
           data: null,
         },
         { status: 404 }
       );
     }
 
-    const transformedSoals = soals.map(
-      (soal: { _count: { userSoal: any }; userSoal: any[] }) => ({
-        ...soal,
-        attemptCount: soal._count.userSoal,
-        userSoal: soal.userSoal.map((us) => ({
-          id: us.id,
-          takenAt: us.takenAt,
-          user: us.user,
-        })),
-      })
-    );
-
+    // Kembalikan soal yang berhasil ditemukan
     return NextResponse.json(
       {
         success: true,
-        message:
-          searchQuery || categories.length > 0
-            ? `Soals retrieved successfully for search: "${searchQuery}" and categories ${categories.join(
-                ", "
-              )}`
-            : "Soals retrieved successfully",
+        message: "Soal berhasil diambil",
         data: transformedSoals,
       },
       { status: 200 }
@@ -136,7 +120,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         success: false,
-        message: "An internal server error occurred",
+        message: "Terjadi kesalahan internal",
         error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }

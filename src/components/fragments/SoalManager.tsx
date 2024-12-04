@@ -174,14 +174,18 @@ const SoalManager = () => {
     () => ({
       async fetchSoals() {
         try {
-          // Add query parameters for search and unsolved soals
           const params = new URLSearchParams();
           params.append("excludeSolved", "true");
 
           const response = await fetch(`/api/soals?${params.toString()}`);
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to fetch soals");
+          }
+
           const data: ApiResponse<Soal[]> = await response.json();
 
-          // Rest of the method remains the same
           if (data.success && data.data) {
             const soalsWithFavorites = data.data.map((soal) => ({
               ...soal,
@@ -197,7 +201,7 @@ const SoalManager = () => {
             updateState({
               soals: [],
               originalSoals: [],
-              error: null,
+              error: data.message || null,
               loading: false,
             });
           }
@@ -205,6 +209,12 @@ const SoalManager = () => {
           const errorMessage =
             err instanceof Error ? err.message : "Failed to fetch soals";
           handleError(errorMessage);
+          updateState({
+            soals: [],
+            originalSoals: [],
+            error: errorMessage,
+            loading: false,
+          });
         }
       },
 
