@@ -2,19 +2,18 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // Sesuaikan path ke konfigurasi auth Anda
+import { authOptions } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    // Dapatkan sesi pengguna saat ini
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return NextResponse.json(
-        { 
-          success: false, 
-          message: "Unauthorized" 
-        }, 
+        {
+          success: false,
+          message: "Unauthorized",
+        },
         { status: 401 }
       );
     }
@@ -22,7 +21,6 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
 
-    // Konversi searchParams ke objek
     const params: Record<string, string> = {};
     searchParams.forEach((value, key) => {
       params[key] = value;
@@ -36,77 +34,67 @@ export async function GET(request: Request) {
 
     const soals = await prisma.soal.findMany({
       where: {
-        // Filter untuk soal yang belum diselesaikan oleh pengguna saat ini
         ...(excludeSolved
           ? {
               userSoal: {
                 none: {
                   userId: session.user.id,
-                  isSolved: true
-                }
-              }
+                  isSolved: true,
+                },
+              },
             }
           : {}),
-        
-        // Filter berdasarkan kategori jika ada
-        ...(categories.length > 0 
-          ? { category: { in: categories } } 
-          : {}),
-        
-        // Filter berdasarkan query pencarian jika ada
+
+        ...(categories.length > 0 ? { category: { in: categories } } : {}),
+
         ...(searchQuery
           ? {
-              OR: [
-                { soal: { contains: searchQuery, mode: "insensitive" } },
-              ],
+              OR: [{ soal: { contains: searchQuery, mode: "insensitive" } }],
             }
           : {}),
       },
       include: {
         userSoal: {
           where: {
-            userId: session.user.id
+            userId: session.user.id,
           },
           select: {
             id: true,
             isSolved: true,
-            takenAt: true
-          }
+            takenAt: true,
+          },
         },
         _count: {
           select: {
-            userSoal: true
-          }
-        }
+            userSoal: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "asc",
       },
     });
 
-    // Transform soals untuk menambahkan informasi tambahan
-    const transformedSoals = soals.map(soal => ({
+    const transformedSoals = soals.map((soal) => ({
       ...soal,
       attemptCount: soal._count.userSoal,
       userAttempt: soal.userSoal.length > 0 ? soal.userSoal[0] : null,
-      // Hapus field yang tidak diperlukan
+
       userSoal: undefined,
-      _count: undefined
+      _count: undefined,
     }));
 
-    // Jika tidak ada soal ditemukan
     if (transformedSoals.length === 0) {
       return NextResponse.json(
         {
-          success: false,
+          success: true,
           message: "Tidak ada soal yang tersedia",
           data: null,
         },
-        { status: 404 }
+        { status: 200 }
       );
     }
 
-    // Kembalikan soal yang berhasil ditemukan
     return NextResponse.json(
       {
         success: true,
