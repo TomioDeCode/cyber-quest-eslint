@@ -89,7 +89,7 @@ export async function GET(request: Request) {
         {
           success: true,
           message: "Tidak ada soal yang tersedia",
-          data: null,
+          data: transformedSoals,
         },
         { status: 200 }
       );
